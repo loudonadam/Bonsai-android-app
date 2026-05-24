@@ -1,0 +1,89 @@
+{
+  "entities": {
+    "Tree": {
+      "title": "Bonsai Tree",
+      "description": "Represents an individual Bonsai tree in the collection.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "The unique ID of the tree document." },
+        "userId": { "type": "string", "description": "The owner user ID." },
+        "name": { "type": "string", "description": "Nickname or identifier of the tree." },
+        "species": { "type": "string", "description": "Botanical or common species name." },
+        "dateAcquired": { "type": "string", "format": "date", "description": "Approximate date the tree was acquired." },
+        "approximateAge": { "type": "number", "description": "Approximate age in years." },
+        "style": { "type": "string", "description": "Bonsai style (e.g., informal upright, broom, cascade)." },
+        "status": { "type": "string", "enum": ["Healthy", "Stressed", "Dormant", "In Training", "Diseased", "Recovering"], "description": "Current health status." },
+        "notes": { "type": "string", "description": "General care notes or history." },
+        "photoBase64": { "type": "string", "description": "Small compressed Base64 representation of the tree photo." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Timestamp when the tree document was created." },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Timestamp when the tree document was last updated." }
+      },
+      "required": ["userId", "name", "species", "status", "createdAt", "updatedAt"]
+    },
+    "Measurement": {
+      "title": "Trunk Width Measurement",
+      "description": "Logs the trunk width of a bonsai over time to track growth.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "The unique ID of the measurement document." },
+        "userId": { "type": "string", "description": "The owner user ID." },
+        "treeId": { "type": "string", "description": "The target tree ID." },
+        "date": { "type": "string", "format": "date", "description": "Date of the measurement." },
+        "width": { "type": "number", "description": "Trunk width in millimeters." },
+        "notes": { "type": "string", "description": "Optional notes regarding the measurement." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Server timestamp of creation." }
+      },
+      "required": ["userId", "treeId", "date", "width", "createdAt"]
+    },
+    "CareLog": {
+      "title": "Care Action Log",
+      "description": "A historic log log-entry of actual care actions performed on a tree.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique ID of the log." },
+        "userId": { "type": "string", "description": "The owner user ID." },
+        "treeId": { "type": "string", "description": "The target tree ID." },
+        "type": { "type": "string", "enum": ["Watering", "Pruning", "Fertilizing", "Repotting", "Wiring", "Pest Control", "Styling"], "description": "Type of care performed." },
+        "date": { "type": "string", "format": "date", "description": "Date of the activity." },
+        "notes": { "type": "string", "description": "Observations or styling descriptions." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Server timestamp." }
+      },
+      "required": ["userId", "treeId", "type", "date", "createdAt"]
+    },
+    "Task": {
+      "title": "Care Task / Reminder",
+      "description": "A scheduled care action that needs to be performed.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique ID of the task." },
+        "userId": { "type": "string", "description": "The owner user ID." },
+        "treeId": { "type": "string", "description": "The target tree ID." },
+        "title": { "type": "string", "description": "Task description (e.g. 'Water Juniper')." },
+        "type": { "type": "string", "description": "Category of work (e.g. Watering, Repotting)." },
+        "dueDate": { "type": "string", "format": "date", "description": "The date when this task should be completed." },
+        "completed": { "type": "boolean", "description": "Whether the task is checked off." },
+        "completedAt": { "type": "string", "format": "date-time", "description": "When the task was completed." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Creation timestamp." }
+      },
+      "required": ["userId", "treeId", "title", "type", "dueDate", "completed", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}/trees/{treeId}": {
+      "schema": "Tree",
+      "description": "User's collection of bonsai trees."
+    },
+    "/users/{userId}/trees/{treeId}/measurements/{measurementId}": {
+      "schema": "Measurement",
+      "description": "Logs of trunk width over time belonging to a tree."
+    },
+    "/users/{userId}/trees/{treeId}/careLogs/{logId}": {
+      "schema": "CareLog",
+      "description": "Historical record of actual care procedures performed on a tree."
+    },
+    "/users/{userId}/trees/{treeId}/tasks/{taskId}": {
+      "schema": "Task",
+      "description": "Scheduled care reminders for a specific tree."
+    }
+  }
+}

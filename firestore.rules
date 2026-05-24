@@ -1,0 +1,185 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isVerified() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // MATCH FOR TREES
+    match /users/{userId}/trees/{treeId} {
+      allow get: if isSignedIn() && request.auth.uid == userId && isValidId(userId) && isValidId(treeId);
+      allow list: if isSignedIn() && request.auth.uid == userId;
+
+      allow create: if isVerified()
+        && request.auth.uid == userId
+        && isValidId(userId)
+        && isValidId(treeId)
+        && isValidTree(request.resource.data);
+
+      allow update: if isVerified()
+        && request.auth.uid == userId
+        && isValidId(userId)
+        && isValidId(treeId)
+        && isValidTreeUpdate(request.resource.data)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name', 'species', 'style', 'status', 'approximateAge', 'dateAcquired', 'notes', 'photoBase64', 'updatedAt']);
+
+      allow delete: if isVerified()
+        && request.auth.uid == userId
+        && isValidId(userId)
+        && isValidId(treeId);
+
+      function isValidTree(tree) {
+        return tree.userId == request.auth.uid
+          && tree.name is string && tree.name.size() > 0 && tree.name.size() <= 100
+          && tree.species is string && tree.species.size() > 0 && tree.species.size() <= 100
+          && tree.status is string && tree.status in ["Healthy", "Stressed", "Dormant", "In Training", "Diseased", "Recovering"]
+          && (!('photoBase64' in tree) || (tree.photoBase64 is string && tree.photoBase64.size() <= 250000))
+          && tree.createdAt == request.time
+          && tree.updatedAt == request.time;
+      }
+
+      function isValidTreeUpdate(tree) {
+        return tree.userId == request.auth.uid
+          && tree.name is string && tree.name.size() > 0 && tree.name.size() <= 100
+          && tree.species is string && tree.species.size() > 0 && tree.species.size() <= 100
+          && tree.status is string && tree.status in ["Healthy", "Stressed", "Dormant", "In Training", "Diseased", "Recovering"]
+          && (!('photoBase64' in tree) || (tree.photoBase64 is string && tree.photoBase64.size() <= 250000))
+          && tree.createdAt == resource.data.createdAt
+          && tree.updatedAt == request.time;
+      }
+    }
+
+    // MATCH FOR SUB-COLLECTIONS OF TREES
+    match /users/{userId}/trees/{treeId}/measurements/{measurementId} {
+      allow get: if isSignedIn() && request.auth.uid == userId && isValidId(userId) && isValidId(treeId) && isValidId(measurementId);
+      allow list: if isSignedIn() && request.auth.uid == userId;
+
+      allow create: if isVerified()
+        && request.auth.uid == userId
+        && isValidId(userId)
+        && isValidId(treeId)
+        && isValidId(measurementId)
+        // Master Gate check
+        && get(/databases/$(database)/documents/users/$(userId)/trees/$(treeId)).data.userId == request.auth.uid
+        && isValidMeasurement(request.resource.data);
+
+      allow update: if isVerified()
+        && request.auth.uid == userId
+        && isValidId(userId)
+        && isValidId(treeId)
+        && isValidId(measurementId)
+        && get(/databases/$(database)/documents/users/$(userId)/trees/$(treeId)).data.userId == request.auth.uid
+        && request.resource.data.userId == resource.data.userId
+        && request.resource.data.treeId == resource.data.treeId
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.width is number && request.resource.data.width >= 0.0 && request.resource.data.width <= 1000.0
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['width', 'notes', 'date']);
+
+      allow delete: if isVerified()
+        && request.auth.uid == userId
+        && isValidId(userId)
+        && isValidId(treeId)
+        && isValidId(measurementId);
+
+      function isValidMeasurement(m) {
+        return m.userId == request.auth.uid
+          && m.treeId == treeId
+          && m.date is string && m.date.size() <= 50
+          && m.width is number && m.width >= 0.0 && m.width <= 1000.0
+          && m.createdAt == request.time;
+      }
+    }
+
+    match /users/{userId}/trees/{treeId}/careLogs/{logId} {
+      allow get: if isSignedIn() && request.auth.uid == userId && isValidId(userId) && isValidId(treeId) && isValidId(logId);
+      allow list: if isSignedIn() && request.auth.uid == userId;
+
+      allow create: if isVerified()
+        && request.auth.uid == userId
+        && isValidId(userId)
+        && isValidId(treeId)
+        && isValidId(logId)
+        // Master Gate check
+        && get(/databases/$(database)/documents/users/$(userId)/trees/$(treeId)).data.userId == request.auth.uid
+        && isValidCareLog(request.resource.data);
+
+      allow update: if isVerified()
+        && request.auth.uid == userId
+        && isValidId(userId)
+        && isValidId(treeId)
+        && isValidId(logId)
+        && get(/databases/$(database)/documents/users/$(userId)/trees/$(treeId)).data.userId == request.auth.uid
+        && request.resource.data.userId == resource.data.userId
+        && request.resource.data.treeId == resource.data.treeId
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['type', 'date', 'notes']);
+
+      allow delete: if isVerified()
+        && request.auth.uid == userId
+        && isValidId(userId)
+        && isValidId(treeId)
+        && isValidId(logId);
+
+      function isValidCareLog(log) {
+        return log.userId == request.auth.uid
+          && log.treeId == treeId
+          && log.type is string && log.type in ["Watering", "Pruning", "Fertilizing", "Repotting", "Wiring", "Pest Control", "Styling"]
+          && log.date is string && log.date.size() <= 50
+          && log.createdAt == request.time;
+      }
+    }
+
+    match /users/{userId}/trees/{treeId}/tasks/{taskId} {
+      allow get: if isSignedIn() && request.auth.uid == userId && isValidId(userId) && isValidId(treeId) && isValidId(taskId);
+      allow list: if isSignedIn() && request.auth.uid == userId;
+
+      allow create: if isVerified()
+        && request.auth.uid == userId
+        && isValidId(userId)
+        && isValidId(treeId)
+        && isValidId(taskId)
+        // Master Gate check
+        && get(/databases/$(database)/documents/users/$(userId)/trees/$(treeId)).data.userId == request.auth.uid
+        && isValidTask(request.resource.data);
+
+      allow update: if isVerified()
+        && request.auth.uid == userId
+        && isValidId(userId)
+        && isValidId(treeId)
+        && isValidId(taskId)
+        && get(/databases/$(database)/documents/users/$(userId)/trees/$(treeId)).data.userId == request.auth.uid
+        && request.resource.data.userId == resource.data.userId
+        && request.resource.data.treeId == resource.data.treeId
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['completed', 'completedAt', 'title', 'type', 'dueDate']);
+
+      allow delete: if isVerified()
+        && request.auth.uid == userId
+        && isValidId(userId)
+        && isValidId(treeId)
+        && isValidId(taskId);
+
+      function isValidTask(task) {
+        return task.userId == request.auth.uid
+          && task.treeId == treeId
+          && task.title is string && task.title.size() > 0 && task.title.size() <= 200
+          && task.type is string && task.type.size() <= 50
+          && task.dueDate is string && task.dueDate.size() <= 50
+          && task.completed is bool
+          && task.createdAt == request.time;
+      }
+    }
+  }
+}
