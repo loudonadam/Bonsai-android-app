@@ -1,0 +1,27 @@
+{
+  "short_name": "Garden",
+  "name": "Garden",
+  "description": "Offline-First Bonsai Garden Care Tracker and AI Horticultural Consultant",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any"
+    },
+    {
+      "src": "/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#FCFBF7",
+  "theme_color": "#1B3B2B",
+  "display": "standalone",
+  "orientation": "portrait"
+}

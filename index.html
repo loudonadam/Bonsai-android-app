@@ -2,12 +2,43 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>My Google AI Studio App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <title>Garden</title>
+    
+    <!-- PWA Link Tags & iOS Meta App Settings -->
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <link rel="apple-touch-icon" href="/icon-192.png" />
+    <meta name="theme-color" content="#1B3B2B" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+
+    <!-- Unregister Service Worker to prevent stale caching/white screen in development/preview -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then((registrations) => {
+          let unregisteredAny = false;
+          const unregisterPromises = registrations.map(registration => 
+            registration.unregister().then((success) => {
+              if (success) {
+                console.log('[Service Worker] Unregistered successfully:', registration.scope);
+                unregisteredAny = true;
+              }
+            })
+          );
+          Promise.all(unregisterPromises).then(() => {
+            if (unregisteredAny) {
+              console.log('[Service Worker] Cleared service workers. Reloading page to fetch clean live assets.');
+              window.location.reload();
+            }
+          });
+        });
+      }
+    </script>
   </body>
 </html>
 

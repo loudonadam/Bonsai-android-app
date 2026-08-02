@@ -1,31 +1,43 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
 @theme {
   --font-sans: "Inter", system-ui, sans-serif;
-  --font-serif: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "JetBrains Mono", monospace;
   --font-mono: "JetBrains Mono", monospace;
   
-  --color-natural-bg: #FDFBF7;
-  --color-natural-forest: #3E4C38;
-  --color-natural-sage: #A3B18A;
-  --color-natural-clay: #D4A373;
-  --color-natural-dark: #1B2418;
-  --color-natural-text: #2D3A28;
-  --color-natural-muted: #7C8577;
-  --color-natural-cream: #F1EEE8;
-  --color-natural-cream-dark: #E9E5DD;
-  --color-natural-cloud: #2F3A2A;
+  --color-natural-bg: #F8FAFC;         /* Crisp blueprint pale slate-50/100 */
+  --color-natural-forest: #3730A3;     /* Blueprint indigo (indigo-800) */
+  --color-natural-sage: #6366F1;       /* Technical glowing blue (indigo-500) */
+  --color-natural-clay: #0F766E;       /* Precision Shokunin teal accent */
+  --color-natural-dark: #0F172A;       /* Slate-900 absolute dark */
+  --color-natural-text: #1E293B;       /* Deep slate ink text */
+  --color-natural-muted: #64748B;      /* Drafting grey mute lines and text */
+  --color-natural-cream: #E2E8F0;      /* Crisp drafting guides (slate-200) */
+  --color-natural-cream-dark: #CBD5E1; /* Bold blueprint border lines */
+  --color-natural-cloud: #1E1B4B;      /* Indigo-950 solid headers */
   
-  --color-zinc-804: #1c1c1e;
-  --color-zinc-805: #2c2c2e;
-  --color-zinc-855: #18181b;
+  --color-zinc-804: #0F172A;
+  --color-zinc-805: #334155;
+  --color-zinc-855: #0F172A;
 }
 
-/* Custom premium scrollbar styling */
+/* Engineering blueprint-grid backing */
+.blueprint-grid {
+  background-color: #F8FAFC;
+}
+
+/* Accent drafting lines */
+.drafting-line {
+  border-style: solid;
+  border-width: 1px;
+  border-image: repeating-linear-gradient(45deg, var(--color-natural-cream), var(--color-natural-cream) 4px, transparent 4px, transparent 8px) 1;
+}
+
+/* Custom premium scrollbar styling matching technical scheme */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 
 ::-webkit-scrollbar-track {
@@ -33,10 +45,10 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(62, 76, 56, 0.15);
+  background: rgba(99, 102, 241, 0.15);
   border-radius: 999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(62, 76, 56, 0.35);
+  background: rgba(99, 102, 241, 0.35);
 }

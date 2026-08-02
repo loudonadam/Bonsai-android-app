@@ -1,5 +1,5 @@
 {
-  "name": "Bonsai Care Tracker",
+  "name": "Garden",
   "description": "A comprehensive app to track your bonsai tree growth, log trunk width over time, manage watering and styling schedules, and explore care guides.",
   "requestFramePermissions": ["camera"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]

@@ -17,6 +17,11 @@ service cloud.firestore {
       return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
     }
 
+    // MATCH FOR UNIFIED GARDEN DOCUMENT
+    match /users/{userId}/garden/{docId} {
+      allow read, write: if isSignedIn() && request.auth.uid == userId;
+    }
+
     // MATCH FOR TREES
     match /users/{userId}/trees/{treeId} {
       allow get: if isSignedIn() && request.auth.uid == userId && isValidId(userId) && isValidId(treeId);
@@ -33,7 +38,7 @@ service cloud.firestore {
         && isValidId(userId)
         && isValidId(treeId)
         && isValidTreeUpdate(request.resource.data)
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name', 'species', 'style', 'status', 'approximateAge', 'dateAcquired', 'notes', 'photoBase64', 'updatedAt']);
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name', 'species', 'style', 'status', 'approximateAge', 'dateAcquired', 'notes', 'photoBase64', 'updatedAt', 'isDead', 'accolades', 'accoladesList', 'lessonLearned']);
 
       allow delete: if isVerified()
         && request.auth.uid == userId
@@ -46,6 +51,10 @@ service cloud.firestore {
           && tree.species is string && tree.species.size() > 0 && tree.species.size() <= 100
           && tree.status is string && tree.status in ["Healthy", "Stressed", "Dormant", "In Training", "Diseased", "Recovering"]
           && (!('photoBase64' in tree) || (tree.photoBase64 is string && tree.photoBase64.size() <= 250000))
+          && (!('isDead' in tree) || tree.isDead is bool)
+          && (!('accolades' in tree) || (tree.accolades is string && tree.accolades.size() <= 2000))
+          && (!('lessonLearned' in tree) || (tree.lessonLearned is string && tree.lessonLearned.size() <= 2000))
+          && (!('accoladesList' in tree) || tree.accoladesList is list)
           && tree.createdAt == request.time
           && tree.updatedAt == request.time;
       }
@@ -56,6 +65,10 @@ service cloud.firestore {
           && tree.species is string && tree.species.size() > 0 && tree.species.size() <= 100
           && tree.status is string && tree.status in ["Healthy", "Stressed", "Dormant", "In Training", "Diseased", "Recovering"]
           && (!('photoBase64' in tree) || (tree.photoBase64 is string && tree.photoBase64.size() <= 250000))
+          && (!('isDead' in tree) || tree.isDead is bool)
+          && (!('accolades' in tree) || (tree.accolades is string && tree.accolades.size() <= 2000))
+          && (!('lessonLearned' in tree) || (tree.lessonLearned is string && tree.lessonLearned.size() <= 2000))
+          && (!('accoladesList' in tree) || tree.accoladesList is list)
           && tree.createdAt == resource.data.createdAt
           && tree.updatedAt == request.time;
       }

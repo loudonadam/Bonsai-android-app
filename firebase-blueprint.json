@@ -15,6 +15,10 @@
         "status": { "type": "string", "enum": ["Healthy", "Stressed", "Dormant", "In Training", "Diseased", "Recovering"], "description": "Current health status." },
         "notes": { "type": "string", "description": "General care notes or history." },
         "photoBase64": { "type": "string", "description": "Small compressed Base64 representation of the tree photo." },
+        "accolades": { "type": "string", "description": "Legacy text entry for achievements." },
+        "accoladesList": { "type": "array", "description": "Structured list of accolade objects." },
+        "isDead": { "type": "boolean", "description": "Whether the tree is in the memorial graveyard." },
+        "lessonLearned": { "type": "string", "description": "Memorial notes or lessons learned from losing the specimen." },
         "createdAt": { "type": "string", "format": "date-time", "description": "Timestamp when the tree document was created." },
         "updatedAt": { "type": "string", "format": "date-time", "description": "Timestamp when the tree document was last updated." }
       },
